@@ -1,7 +1,37 @@
-import React from "react";
-import Teacher from "./Teacher";
-
+import axios from "axios";
+import React, { useState } from "react";
+import { Navigate } from "react-router-dom";
 function Admin() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [redirect, setRedirect] = useState(false);
+  const [error, setError] = useState("");
+  console.log(error);
+
+  const loginAdmin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:4000/login", {
+        username,
+        password,
+      });
+      {
+        if (response.status === 200) {
+          setRedirect(true);
+        } else {
+          setError("Incorrect username and password");
+        }
+        // response.status === 200 ? setRedirect(true) : setRedirect(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setError("Incorrect username and password");
+    }
+  };
+
+  if (redirect) {
+    return <Navigate to={"/dashboard"} />;
+  }
   return (
     <div>
       <div className="container mt-3">
@@ -21,37 +51,38 @@ function Admin() {
               </h1>
               <h5 className="row justify-content-center"> Admin Panel</h5>
               <div className="mb-3">
-                <label for="username" className="form-label">
+                <label htmlFor="username" className="form-label">
                   Username
                 </label>
                 <input
                   type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="form-control"
-                  id="username"
-                  name="username"
                   placeholder="Enter your username"
                 />
               </div>
               <div className="mb-3">
-                <label for="password" className="form-label">
+                <label htmlFor="password" className="form-label">
                   Password
                 </label>
                 <input
                   type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="form-control"
-                  id="password"
-                  name="password"
                   placeholder="Enter your password"
                 />
               </div>
-              <div className="text-center">
+              <div className="text-center d-flex flex-column">
                 <button
-                  href="dashboard.html"
+                  onClick={loginAdmin}
                   type="submit"
                   className="btn btn-primary"
                 >
                   Log In
                 </button>
+                <p className="text-center text-danger">{error}</p>
               </div>
             </form>
           </div>

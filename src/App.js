@@ -1,4 +1,5 @@
 import Home from "./Components/Home";
+import axios from "axios";
 import {
   BrowserRouter as Router,
   Route,
@@ -10,6 +11,16 @@ import Admin from "./Components/Admin";
 import AboutUs from "./Components/AboutUs";
 import Teacher from "./Components/Teacher";
 import Dashboard from "./Components/Pages/Dashboard";
+import Dhome from "./Components/Pages/Dhome";
+import Ateacher from "./Components/Ateacher";
+import Dstudent from "./Components/Pages/Dstudent";
+import Dclass from "./Components/Pages/Dclass";
+import Dsubject from "./Components/Pages/Dsubject";
+import Dexam from "./Components/Pages/Dexam";
+import Result from "./Components/Pages/Result";
+import Dteacher from "./Components/Dteacher";
+axios.defaults.baseURL = "http://localhost:4000";
+axios.defaults.withCredentials = true;
 function App() {
   return (
     <>
@@ -21,6 +32,14 @@ function App() {
           <Route path="/teacher" element={<Teacher />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dhome" element={<Dhome />} />
+          <Route path="/ateacher" element={<Ateacher />} />
+          <Route path="/dstudent" element={<Dstudent />} />
+          <Route path="/dclass" element={<Dclass />} />
+          <Route path="/dsubject" element={<Dsubject />} />
+          <Route path="/dexam" element={<Dexam />} />
+          <Route path="/dresult" element={<Result />} />
+          <Route path="/dteacher" element={<Dteacher />} />
         </Routes>
       </Router>
     </>
