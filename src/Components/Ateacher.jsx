@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Pages/Ateacher.css";
 import axios from "axios";
 
@@ -12,9 +12,76 @@ function Ateacher() {
   const [tsubject, settsubject] = useState("");
   const [tpassword, settpassword] = useState("");
   const [tdob, settdob] = useState("");
+  const [teacherList, setTeacherList] = useState([]);
+  const [editingTeacherId, setEditingTeacherId] = useState(null);
+
+  function DateConverter(dateValue) {
+    var dateString = dateValue;
+    var date = new Date(dateString);
+    // You can extract various components of the date
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1; // months are zero-based
+    var day = date.getDate();
+    return year + "/" + month + "/" + day;
+  }
+  useEffect(() => {
+    const getTeacherDetails = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:4000/getteacherdetail"
+        );
+        setTeacherList(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getTeacherDetails();
+  }, []);
+
+  const editFormHandler = async (teacherId) => {
+    try {
+      const teacher = teacherList.find((teacher) => teacher._id === teacherId);
+      const response = await axios.put(
+        `http://localhost:4000/updateteacher/${teacherId}`,
+        {
+          tName: teacher.tName,
+          temail: teacher.temail,
+          tphone: teacher.tphone,
+          taddress: teacher.taddress,
+          tgender: teacher.tgender,
+          tusername: teacher.tusername,
+          tsubject: teacher.tsubject,
+          tdob: teacher.tdob,
+          tpassword: teacher.tpassword,
+        }
+      );
+      console.log(response);
+      setEditingTeacherId(null);
+      const updatedTeacherList = teacherList.map((teacher) =>
+        teacher._id === teacherId ? response.data : teacher
+      );
+      setTeacherList(updatedTeacherList);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const Teacherdetail = async (e) => {
     e.preventDefault();
+    if (
+      !tName ||
+      !temail ||
+      !tphone ||
+      !taddress ||
+      !tgender ||
+      !tusername ||
+      !tsubject ||
+      !tdob ||
+      !tpassword
+    ) {
+      console.log("Please fill in all the fields.");
+      return;
+    }
     try {
       const response = await axios.post("http://localhost:4000/teacherdetail", {
         tName,
@@ -27,11 +94,31 @@ function Ateacher() {
         tdob,
         tpassword,
       });
+      console.log(response);
+      //clearing the input taken after response
+      setTName("");
+      setTEmail("");
+      setTPhone("");
+      settaddress("");
+      settgender("");
+      settusername("");
+      settsubject("");
+      settdob("");
+      settpassword("");
     } catch (error) {
       console.log(error);
     }
   };
-
+  const removeTeacher = async (teacherId) => {
+    try {
+      await axios.delete(`http://localhost:4000/removeteacher/${teacherId}`);
+      setTeacherList((prevList) =>
+        prevList.filter((teacher) => teacher._id !== teacherId)
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div>
       <div className="container">
@@ -99,11 +186,15 @@ function Ateacher() {
               <div className="form-group phone">
                 <label htmlFor="gender">Gender:</label>
                 <select
-                  className="form-control"
+                  className="form-select dropdown-toggle"
                   id="gender"
+                  placeholder="Gender"
                   value={tgender}
                   onChange={(e) => settgender(e.target.value)}
                 >
+                  <option selected value="">
+                    Gender
+                  </option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
@@ -159,14 +250,184 @@ function Ateacher() {
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Address</th>
-                    <th>Date of Birth</th>
                     <th>Gender</th>
                     <th>Username</th>
-                    <th>Subject</th>
-                    <th>Subject</th>
+                    <th>subject</th>
+                    <th>dob</th>
+                    <th>password</th>
                   </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                  {teacherList.map((teacher) => (
+                    <tr key={teacher._id}>
+                      <td>
+                        {editingTeacherId === teacher._id ? (
+                          <input
+                            type="text"
+                            value={teacher.tName}
+                            size={tName.length > 10 ? tName.length : 10}
+                            onChange={(e) =>
+                              setTeacherList(
+                                teacherList.map((t) =>
+                                  t._id === teacher._id
+                                    ? { ...t, tName: e.target.value }
+                                    : t
+                                )
+                              )
+                            }
+                          />
+                        ) : (
+                          teacher.tName
+                        )}
+                      </td>
+                      <td>{teacher.temail}</td>
+                      <td>
+                        {editingTeacherId === teacher._id ? (
+                          <input
+                            type="text"
+                            size={tphone.length > 10 ? tphone.length : 10}
+                            value={teacher.tphone}
+                            onChange={(e) =>
+                              setTeacherList(
+                                teacherList.map((t) =>
+                                  t._id === teacher._id
+                                    ? { ...t, tphone: e.target.value }
+                                    : t
+                                )
+                              )
+                            }
+                          />
+                        ) : (
+                          teacher.tphone
+                        )}
+                      </td>
+                      <td>{teacher.taddress}</td>
+                      <td>{teacher.tgender}</td>
+                      <td>
+                        {editingTeacherId === teacher._id ? (
+                          <input
+                            type="text"
+                            value={teacher.tusername}
+                            size={tusername.length > 10 ? tusername.length : 10}
+                            onChange={(e) =>
+                              setTeacherList(
+                                teacherList.map((t) =>
+                                  t._id === teacher._id
+                                    ? { ...t, tusername: e.target.value }
+                                    : t
+                                )
+                              )
+                            }
+                          />
+                        ) : (
+                          teacher.tusername
+                        )}
+                      </td>
+                      <td>{teacher.tsubject}</td>
+
+                      <td>
+                        {editingTeacherId === teacher._id ? (
+                          <input
+                            type="date"
+                            value={teacher.tdob}
+                            size={tdob.length > 5 ? tdob.length : 5}
+                            onChange={(e) =>
+                              setTeacherList(
+                                teacherList.map((t) =>
+                                  t._id === teacher._id
+                                    ? { ...t, tdob: e.target.value }
+                                    : t
+                                )
+                              )
+                            }
+                          />
+                        ) : (
+                          DateConverter(teacher.tdob)
+                        )}
+                      </td>
+                      <td>
+                        {editingTeacherId === teacher._id ? (
+                          <input
+                            type="text"
+                            value={teacher.tpassword}
+                            size={tpassword.length > 10 ? tpassword.length : 10}
+                            onChange={(e) =>
+                              setTeacherList(
+                                teacherList.map((t) =>
+                                  t._id === teacher._id
+                                    ? { ...t, tpassword: e.target.value }
+                                    : t
+                                )
+                              )
+                            }
+                          />
+                        ) : (
+                          teacher.tpassword
+                        )}
+                      </td>
+                      <td>
+                        {editingTeacherId === teacher._id ? (
+                          <>
+                            <button
+                              className="btn btn-primary"
+                              style={{
+                                backgroundColor: "blue",
+                                color: "whitesmoke",
+                                margin: "3px",
+                              }}
+                              onClick={() => editFormHandler(teacher._id)}
+                            >
+                              Save
+                            </button>
+                            <button
+                              className="btn btn-danger"
+                              style={{
+                                backgroundColor: "Red",
+                                color: "whitesmoke",
+                                margin: "3%",
+                              }}
+                              onClick={() => setEditingTeacherId(null)}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              className="btn btn-primary"
+                              style={{
+                                backgroundColor: "blue",
+                                color: "whitesmoke",
+                              }}
+                              onClick={() => setEditingTeacherId(teacher._id)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="btn btn-danger"
+                              style={{
+                                backgroundColor: "Red",
+                                color: "whitesmoke",
+                                margin: "3%",
+                              }}
+                              onClick={() => {
+                                if (
+                                  window.confirm(
+                                    "Are you sure you want to remove this teacher?"
+                                  )
+                                ) {
+                                  removeTeacher(teacher._id);
+                                }
+                              }}
+                            >
+                              Remove
+                            </button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
           </div>

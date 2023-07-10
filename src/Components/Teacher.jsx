@@ -21,7 +21,6 @@ function Teacher() {
           setRedirect(true);
         }
         console.log(response);
-        // response.status === 200 ? setRedirect(true) : setRedirect(false);
       }
     } catch (error) {
       console.log(error);

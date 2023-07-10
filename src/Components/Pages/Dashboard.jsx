@@ -7,6 +7,7 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import InsertChartIcon from "@mui/icons-material/InsertChart";
 import LogoutIcon from "@mui/icons-material/Logout";
+import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import Dhome from "./Dhome";
 import "./Dashboard.css";
 import { useState } from "react";
@@ -19,8 +20,14 @@ import Result from "./Result";
 import { useNavigate } from "react-router-dom";
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("home");
+  const [showViewAllButton, setShowViewAllButton] = useState(false);
   const handleTabClick = (tabName) => {
     setActiveTab(tabName);
+    if (tabName === "student") {
+      setShowViewAllButton(true);
+    } else {
+      setShowViewAllButton(false);
+    }
   };
   const Navigate = useNavigate();
   const handleLogout = () => {
@@ -62,6 +69,15 @@ function Dashboard() {
               >
                 <SchoolIcon className="me-4 schoolicon" />
                 <span>Student</span>
+                <li class="nav-item">
+                  <a
+                    href="student-details.html"
+                    class="nav-link"
+                    style={{ listStyleType: "none" }}
+                  >
+                    <i class="fas fa-angle-right"></i>Student Details
+                  </a>
+                </li>
               </button>
               <button
                 className=" py-2 btn3"
@@ -108,7 +124,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="col-md-10" >
+          <div className="col-md-10">
             {activeTab === "home" && <Dhome />}
             {activeTab === "student" && <Dstudent />}
             {activeTab === "teacher" && <Ateacher />}
